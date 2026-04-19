@@ -28,7 +28,8 @@ use crate::render::line_utils::prefix_lines;
 use crate::render::line_utils::push_owned_lines;
 use crate::render::renderable::Renderable;
 use crate::style::proposed_plan_style;
-use crate::style::user_message_style;
+use crate::style::user_history_message_fg;
+use crate::style::user_history_message_style;
 #[cfg(test)]
 use crate::test_support::PathBufExt;
 #[cfg(test)]
@@ -310,7 +311,7 @@ impl HistoryCell for UserHistoryCell {
             )
             .max(1);
 
-        let style = user_message_style();
+        let style = user_history_message_style();
         let element_style = style.fg(Color::Cyan);
 
         let wrapped_remote_images = if self.remote_image_urls.is_empty() {
@@ -4402,6 +4403,28 @@ mod tests {
         let rendered = render_lines(&lines).join("\n");
 
         insta::assert_snapshot!(rendered);
+    }
+
+    #[test]
+    fn user_history_cell_uses_orange_approx_foreground_for_message_text() {
+        let cell = UserHistoryCell {
+            message: "highlight me".to_string(),
+            text_elements: Vec::new(),
+            local_image_paths: Vec::new(),
+            remote_image_urls: Vec::new(),
+        };
+
+        let message_line = cell
+            .display_lines(/*width*/ 80)
+            .into_iter()
+            .find(|line| {
+                line.spans
+                    .iter()
+                    .any(|span| span.content.contains("highlight me"))
+            })
+            .expect("expected rendered user message line");
+
+        assert_eq!(message_line.style.fg, Some(user_history_message_fg()));
     }
 
     #[test]

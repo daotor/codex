@@ -9,6 +9,10 @@ pub fn user_message_style() -> Style {
     user_message_style_for(default_bg())
 }
 
+pub fn user_history_message_style() -> Style {
+    user_history_message_style_for(default_bg())
+}
+
 pub fn proposed_plan_style() -> Style {
     proposed_plan_style_for(default_bg())
 }
@@ -21,11 +25,23 @@ pub fn user_message_style_for(terminal_bg: Option<(u8, u8, u8)>) -> Style {
     }
 }
 
+/// Returns the style for committed user history messages.
+///
+/// We keep the existing user-message background tint, but use an ANSI yellow foreground as the
+/// closest terminal-safe approximation of orange for the conversation transcript.
+pub fn user_history_message_style_for(terminal_bg: Option<(u8, u8, u8)>) -> Style {
+    user_message_style_for(terminal_bg).fg(user_history_message_fg())
+}
+
 pub fn proposed_plan_style_for(terminal_bg: Option<(u8, u8, u8)>) -> Style {
     match terminal_bg {
         Some(bg) => Style::default().bg(proposed_plan_bg(bg)),
         None => Style::default(),
     }
+}
+
+pub fn user_history_message_fg() -> Color {
+    Color::Yellow
 }
 
 #[allow(clippy::disallowed_methods)]
